@@ -1,0 +1,134 @@
+.bmi-app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  margin-bottom: 40px;
+}
+
+.bmi-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10px;
+  background-color: white;
+  max-width: 1300px;
+  width: 100%;
+  margin: 40px auto; /* Center the container */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better appearance */
+}
+
+.bmi-form-section {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.bmi-title {
+  text-align: center; /* Center title */
+  margin-bottom: 20px;
+  font-size: 40px;
+}
+
+.bmi-labels {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.bmi-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 2px solid #e09145;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
+
+.bmi-input:focus {
+  border-color: #e09145;
+  outline: none;
+}
+
+.bmi-button-group {
+  display: flex; /* Display buttons in a row */
+  flex-direction: row; /* Keep buttons in a row by default */
+  justify-content: center; /* Center buttons */
+  align-items: center; /* Align buttons vertically */
+}
+
+.bmi-btn,
+.bmi-btn-reset {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #e09145;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+  width: 100%; /* Full width buttons on small screens */
+  max-width: 200px; /* Max width for buttons */
+  margin: 5px; /* Space between buttons */
+}
+
+.bmi-btn:hover,
+.bmi-btn-reset:hover {
+  opacity: 0.9;
+}
+
+.bmi-result {
+  margin-top: 20px;
+  text-align: center; /* Center result text */
+  font-size: 23px;
+}
+
+.bmi-p-msg {
+  color: red;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.bmi-image-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bmi-image {
+  margin-top: 60px;
+  max-width: 90%; /* Adjust to fit within the container */
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .bmi-container {
+    flex-direction: column; /* Stack sections on smaller screens */
+    padding: 20px; /* Add padding for mobile */
+  }
+
+  .bmi-form-section {
+    padding-right: 0; /* Remove right padding */
+    margin-bottom: 20px; /* Add margin below the form */
+  }
+
+  .bmi-title {
+    font-size: 30px; /* Smaller title on mobile */
+  }
+
+  .bmi-button-group {
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
+  }
+
+  .bmi-btn,
+  .bmi-btn-reset {
+    max-width: 100%; /* Full width on mobile */
+  }
+
+  .bmi-image-section {
+    display: none; /* Hide image section on small screens */
+  }
+}

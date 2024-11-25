@@ -1,0 +1,102 @@
+.heading{
+  width: 90%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  margin: 20px auto;
+}
+.heading h1{
+  font-size: 50px;
+  color: black;
+  margin-bottom: 25px;
+  position: relative;
+}
+.heading h1::after{
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  display: block;
+  margin: 0% auto;
+  background-color: #E09145;
+}
+.heading p{
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 35px;
+}
+.container{
+  width: 90%;
+  margin: 0 auto;
+  padding: 0px 30px 0px 0px;
+}
+.about{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.about-image{
+  flex: 1;
+  overflow: hidden;
+}
+.about-image img{
+  max-width: 100%;
+  height: auto;
+  display: block;
+  transition: 0.5s ease;
+}
+.about-image::hover img{
+  transform: scale(1.2);
+}
+.about-content {
+  flex: 1;
+  margin-left: 0px; /* Adds space between the image and text */
+  flex-direction: column;
+  justify-content: center; /* Centers the text vertically */
+  max-width: 1000%; /* Ensures content is on the right half */
+}
+
+.about-content h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.about-content p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 15px;
+  margin-right: 8px;
+}
+
+.about-content .read-more {
+  display: inline-block;
+  padding: 10px 20px; /* Reduced padding for a smaller button */
+  background-color: #E09145;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  margin-top: 15px;
+  font-size: 14px; /* Smaller font size */
+}
+
+.about-content a:hover {
+  background-color: #D2823B;
+}
+@media (max-width: 768px) {
+  .about {
+    flex-direction: column; /* Stacks the image and text vertically on smaller screens */
+  }
+
+  .about-content {
+    margin-left: 0; /* Remove left margin on smaller screens */
+    max-width: 100%; /* Allow content to take full width on smaller screens */
+    text-align: center; /* Center-align text on smaller screens */
+  }
+
+  .about-content a {
+    margin-top: 20px; /* Add more spacing for mobile view */
+  }
+}
