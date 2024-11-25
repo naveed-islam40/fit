@@ -397,7 +397,10 @@ export default function Dashboard() {
                         <td className="p-4 border-b">{row.score}</td>
                         <td className="p-4 border-b">
                           <Link
-                            href={`/dashboard/edit/${row._id}`}
+                            href={{
+                              pathname: "/PerformanceCalculator",
+                              query: { id: row.id }, // Pass the row id as a query parameter
+                            }}
                           >
                             <button
                               className="text-[#E09145] hover:text-[#E09145] p-2 rounded-full transition"
