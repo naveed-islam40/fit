@@ -125,8 +125,6 @@ const PerformanceCalculator = () => {
   };
 
 
-  console.log(performanceData)
-
   
   return (
     <div>

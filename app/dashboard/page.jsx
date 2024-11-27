@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { toast, ToastContainer } from "react-toastify";
-import { FaEdit, FaBars } from 'react-icons/fa';
+import { FaEdit, FaBars } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import PerformanceCard from "@/chart/progressChart";
 
 export default function Dashboard() {
   const [reportData, setReportData] = useState(null);
@@ -33,6 +34,7 @@ export default function Dashboard() {
   });
   const [performanceScore, setPerformanceScore] = useState(null);
   const [weightGain, setWeightGain] = useState(null);
+  const [isDataChanged, setIsDataChanged] = useState(false);
 
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("id") : null;
@@ -45,8 +47,12 @@ export default function Dashboard() {
     }));
   };
 
-
-  const calculatePerformance = ({ calories, workoutHours, waterIntake, sleep }) => {
+  const calculatePerformance = ({
+    calories,
+    workoutHours,
+    waterIntake,
+    sleep,
+  }) => {
     const caloriesScore = calories >= 1500 && calories <= 2500 ? 25 : 0;
     const workoutScore = workoutHours >= 1 && workoutHours <= 2 ? 25 : 0;
     const waterScore = waterIntake >= 2 && waterIntake <= 3 ? 25 : 0;
@@ -100,11 +106,12 @@ export default function Dashboard() {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/performances", performance);
-      console.log(response.data);
+      const response = await axios.post(
+        "http://localhost:5000/api/performances",
+        performance
+      );
       toast.success("Performance data saved successfully");
-
-      // Reset input fields after calculation
+      setIsDataChanged(!isDataChanged);
       setInputData({
         calories: "",
         workoutHours: "",
@@ -137,7 +144,6 @@ export default function Dashboard() {
       }
 
       const csvData = generateCSV(reportData);
-      console.log("Generated CSV:", csvData);
 
       const blob = new Blob([csvData], { type: "text/csv" });
       const link = document.createElement("a");
@@ -150,7 +156,10 @@ export default function Dashboard() {
 
       toast.success("Report downloaded successfully");
     } catch (error) {
-      console.error("Error downloading report:", error.response || error.message);
+      console.error(
+        "Error downloading report:",
+        error.response || error.message
+      );
       toast.error("Failed to download the report. Please try again.");
     }
   };
@@ -158,7 +167,14 @@ export default function Dashboard() {
   const generateCSV = (data) => {
     console.log("Data passed to generateCSV:", data);
 
-    const headers = ["Date", "Calories", "Workout Hours", "Water Intake", "Sleep", "Score"];
+    const headers = [
+      "Date",
+      "Calories",
+      "Workout Hours",
+      "Water Intake",
+      "Sleep",
+      "Score",
+    ];
 
     if (!Array.isArray(data)) {
       console.error("Data is not an array:", data);
@@ -179,7 +195,7 @@ export default function Dashboard() {
     ]);
 
     const csvContent = [
-      headers.join(","), // Add headers
+      headers.join(","),
       ...rows.map((row) => row.join(",")),
     ].join("\n");
 
@@ -198,23 +214,25 @@ export default function Dashboard() {
   useEffect(() => {
     if (userId) {
       axios
-        .get("http://localhost:5000/api/performances/${userId}")
+        .get(`http://localhost:5000/api/performances/${userId}`)
         .then((res) => setPerformanceData(res.data))
         .catch((err) => console.error("Error fetching performance data:", err));
     }
-  }, [userId]);
+  }, [userId, isDataChanged]);
 
   useEffect(() => {
     if (userId) {
       axios
-        .get(`http://localhost:5000/api/performances/${userId}/data?page=${currentPage}`)
+        .get(
+          `http://localhost:5000/api/performances/${userId}/data?page=${currentPage}`
+        )
         .then((res) => {
           setTableData(res.data.results);
           setTotalPages(res.data.totalPages);
         })
         .catch((err) => console.error("Error fetching table data:", err));
     }
-  }, [userId, currentPage]);
+  }, [userId, currentPage, isDataChanged]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -222,26 +240,41 @@ export default function Dashboard() {
     }
   };
 
+  const performanceCards = useMemo(() => {
+    if (tableData.length > 0) {
+      const latestData = tableData[tableData.length - 1];
+      return [
+        { title: "Calories", value: latestData.calories || 0, maxValue: 2500 },
+        {
+          title: "Workout Hours",
+          value: latestData.workoutHours || 0,
+          maxValue: 2,
+        },
+        { title: "Sleep (hours)", value: latestData.sleep || 0, maxValue: 9 },
+        {
+          title: "Water Intake (liters)",
+          value: latestData.waterIntake || 0,
+          maxValue: 5,
+        },
+      ];
+    }
+    return [];
+  }, [tableData]);
+
   return (
     <div>
       <Navbar />
       <ToastContainer />
       <div className="min-h-screen bg-grayLight flex">
-
         <div>
-          {/* <button
-            onClick={() => setPanelOpen(!panelOpen)}
-            className="fixed top-4 left-4 z-50 p-2 bg-[#E09145] text-white rounded-lg shadow-lg hover:bg-[#C67D34] transition-colors duration-300"
-          >
-
-            <FaBars className="text-2xl" />
-          </button> */}
-
           <aside
-            className={`fixed top-0 left-0 h-full w-60 bg-white shadow-lg border-r border-grayLight mt-[82px]  p-4 transform transition-transform duration-500 ${panelOpen ? "translate-x-0" : "-translate-x-full"
-              }`}
+            className={`fixed top-0 left-0 h-full w-60 bg-white shadow-lg border-r border-grayLight mt-[82px]  p-4 transform transition-transform duration-500 ${
+              panelOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
           >
-            <h2 className="text-black font-semibold mb-4">Performance Calculator</h2>
+            <h2 className="text-black font-semibold mb-4">
+              Performance Calculator
+            </h2>
             <form onSubmit={submitHandler}>
               <div className="space-y-4">
                 {[
@@ -250,8 +283,13 @@ export default function Dashboard() {
                   { label: "Water Intake (liters)", name: "waterIntake" },
                   { label: "Sleep (hours)", name: "sleep" },
                 ].map(({ label, name }, index) => (
-                  <div key={index} className="bg-white p-2 shadow-md rounded-lg">
-                    <label className="block text-sm font-semibold mb-1">{label}</label>
+                  <div
+                    key={index}
+                    className="bg-white p-2 shadow-md rounded-lg"
+                  >
+                    <label className="block text-sm font-semibold mb-1">
+                      {label}
+                    </label>
                     <input
                       type="number"
                       name={name}
@@ -281,7 +319,6 @@ export default function Dashboard() {
               </div>
             )}
           </aside>
-
         </div>
 
         {/* Main Dashboard Content */}
@@ -296,63 +333,22 @@ export default function Dashboard() {
             </button>
           </div>
 
-          {/* Performance Cards */}
           <div className="grid grid-cols-4 gap-6">
-            {[
-              { title: "Calories", percentage: 75, color: "#4CAF50" },
-              { title: "Workout Hours", percentage: 60, color: "#FF9800" },
-              { title: "Water Intake", percentage: 45, color: "#2196F3" },
-              { title: "Sleep", percentage: 55, color: "#F44336" },
-            ].map((item, index) => (
-              <div
+            {performanceCards.map((card, index) => (
+              <PerformanceCard
                 key={index}
-                className="bg-white shadow-lg rounded-lg p-6 border border-gray-200 flex flex-col items-center space-y-4"
-              >
-                <h3 className="text-black font-semibold text-lg">{item.title}</h3>
-                <div className="flex justify-center items-center w-24 h-24">
-                  <svg viewBox="0 0 100 100" className="w-full h-full">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      stroke="lightgray"
-                      strokeWidth="5"
-                      fill="none"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="45"
-                      stroke={item.color}
-                      strokeWidth="5"
-                      fill="none"
-                      strokeDasharray="283"
-                      strokeDashoffset={(283 - (item.percentage / 100) * 283).toFixed(2)}
-                      transform="rotate(-90 50 50)"
-                    />
-                    <text
-                      x="50"
-                      y="55"
-                      textAnchor="middle"
-                      fontSize="14"
-                      fill="#333"
-                      fontWeight="bold"
-                    >
-                      {item.percentage}%
-                    </text>
-                  </svg>
-                </div>
-              </div>
+                title={card.title}
+                value={card.value}
+                maxValue={card.maxValue}
+              />
             ))}
           </div>
-
-
-
-
           {/* Performance Data Table */}
           <div className="mt-8">
             <div className="mt-8 flex items-center justify-between">
-              <h3 className="text-black font-bold mb-4 text-2xl">Performance Data</h3>
+              <h3 className="text-black font-bold mb-4 text-2xl">
+                Performance Data
+              </h3>
               <button
                 onClick={downloadReport}
                 className="bg-red-500 pl-5 pr-5 pt-4 pb-4 font-bold rounded-lg text-white"
@@ -396,15 +392,8 @@ export default function Dashboard() {
                         <td className="p-4 border-b">{row.sleep}</td>
                         <td className="p-4 border-b">{row.score}</td>
                         <td className="p-4 border-b">
-                          <Link
-                            href={{
-                              pathname: "/PerformanceCalculator",
-                              query: { id: row.id }, // Pass the row id as a query parameter
-                            }}
-                          >
-                            <button
-                              className="text-[#E09145] hover:text-[#E09145] p-2 rounded-full transition"
-                            >
+                          <Link href={`/dashboard/edit/${row._id}`}>
+                            <button className="text-[#E09145] hover:text-[#E09145] p-2 rounded-full transition">
                               <FaEdit />
                             </button>
                           </Link>
@@ -441,9 +430,7 @@ export default function Dashboard() {
                   Next
                 </button>
               </div>
-
             </div>
-
           </div>
         </main>
       </div>
